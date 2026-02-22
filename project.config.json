@@ -18,7 +18,11 @@
     "condition": true,
     "swc": false,
     "disableSWC": true,
-    "compileWorklet": true
+    "compileWorklet": true,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "localPlugins": false,
+    "disableUseStrict": false
   },
   "compileType": "miniprogram",
   "simulatorPluginLibVersion": {},
@@ -28,5 +32,6 @@
   },
   "appid": "wx1896f8b2be4fd8cb",
   "editorSetting": {},
-  "cloudfunctionTemplateRoot": "cloudfunctionTemplate/"
+  "cloudfunctionTemplateRoot": "cloudfunctionTemplate/",
+  "libVersion": "2.33.0"
 }

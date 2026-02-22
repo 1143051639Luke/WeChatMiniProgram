@@ -1,7 +1,7 @@
 {
   "pages": [
-    "pages/room/room",
-    "pages/index/index"
+    "pages/index/index",
+    "pages/room/room"
   ],
   "window": {
     "navigationBarTitleText": "酒局账本",

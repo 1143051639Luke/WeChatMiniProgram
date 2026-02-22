@@ -1,13 +1,23 @@
 <!-- pages/room/room.wxml -->
 <view class="page">
 
+<view wx:if="{{authRequired}}" class="auth-gate">
+  <view class="auth-card" catchtap="noop">
+    <text class="auth-title">请先授权后使用</text>
+    <text class="auth-desc">未授权无法进入酒局账本</text>
+    <button class="auth-btn" bindtap="onGetProfileTap">授权并开始</button>
+  </view>
+</view>
+
+<block wx:else>
+
 <!-- 顶部：左侧我的总览 + 右侧操作 -->
 <view class="top-row">
 
   <!-- 我的总览方块 -->
   <view class="me-card" bindtap="onMeCardTap">
     <view class="me-left">
-      <image class="me-avatar" src="{{myProfile.avatar}}" mode="aspectFill"></image>
+      <image class="me-avatar" src="{{myProfile.avatar ? myProfile.avatar : '/assets/default-avatar.png'}}" mode="aspectFill"></image>
       <view class="me-name-wrap">
         <text class="me-name">{{myProfile.nickname}}</text>
         <text class="me-tag-placeholder">（标签预留位）</text>
@@ -15,7 +25,6 @@
     </view>
 
     <view class="me-right">
-      <!-- 只显示：欠（我欠别人的总数） -->
       <view class="me-one-stat">
         <text class="stat-label">欠</text>
         <view class="stat-value-row">
@@ -30,7 +39,6 @@
     </view>
   </view>
 
-  <!-- 右侧：单位 + 刷新 -->
   <view class="top-actions">
     <view class="unit-pill" bindtap="changeUnit">
       <text>单位 {{currentUnit}}</text>
@@ -38,24 +46,28 @@
     <view class="refresh-pill" bindtap="manualRefresh">
       <text>刷新</text>
     </view>
+    <view class="end-pill" bindtap="endCurrentGame">
+      <text>结束游戏</text>
+    </view>
   </view>
 
 </view>
 
-<!-- 授权提示（可选） -->
-<view class="profile-bar" wx:if="{{!hasProfile}}">
-  <text class="profile-text">（可选）授权后显示微信头像昵称</text>
-  <view class="profile-btn" bindtap="onGetProfileTap">授权</view>
+<view class="invite-bar">
+  <view class="invite-main">
+    <text class="invite-label">房间码</text>
+    <text class="invite-code">{{roomId}}</text>
+  </view>
+  <view class="invite-copy" bindtap="copyRoomCode">复制</view>
 </view>
 
 <!-- 玩家列表：横版卡片 -->
 <view class="list">
   <block wx:for="{{players}}" wx:key="openid">
-    <!-- 不渲染自己（自己在顶部 me-card 里） -->
     <view wx:if="{{item.openid !== myOpenId}}" class="player-card">
 
       <view class="p-left" bindtap="onPlayerTap" data-target="{{item}}">
-        <image class="p-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
+        <image class="p-avatar" src="{{item.avatar ? item.avatar : '/assets/default-avatar.png'}}" mode="aspectFill"></image>
         <view class="p-name-wrap">
           <text class="p-name">{{item.nickname}}</text>
           <text class="p-tag-placeholder">（标签预留位）</text>
@@ -63,7 +75,6 @@
       </view>
 
       <view class="p-mid" bindtap="onPlayerTap" data-target="{{item}}">
-        <!-- 欠：他欠的总数 -->
         <view class="p-line">
           <text class="p-label">欠</text>
           <view class="p-num">
@@ -72,7 +83,6 @@
           </view>
         </view>
 
-        <!-- TA欠我：他欠我的总数 -->
         <view class="p-line">
           <text class="p-label">TA欠我</text>
           <view class="p-num">
@@ -81,14 +91,12 @@
           </view>
         </view>
 
-        <!-- 按钮：欠酒 / 还酒（横向排列） -->
         <view class="p-btns">
           <view class="btn btn-debt" bindtap="quickDebt" data-target="{{item}}" catchtap="noop">欠酒</view>
           <view class="btn btn-repay" bindtap="quickRepay" data-target="{{item}}" catchtap="noop">还酒</view>
         </view>
       </view>
 
-      <!-- 右侧：欠（他欠的总数） -->
       <view class="p-right" bindtap="onPlayerTap" data-target="{{item}}">
         <view class="p-right-box">
           <text class="p-right-title">欠</text>
@@ -186,7 +194,7 @@
   </view>
 </view>
 
-<!-- 还酒申请弹窗（债主端）自定义遮罩：不会系统 modal 反复弹 -->
+<!-- 还酒申请弹窗（债主端）自定义遮罩 -->
 <view wx:if="{{showApproveModal}}" class="mask">
   <view class="approve-card" catchtap="noop">
     <view class="approve-title">还酒申请</view>
@@ -204,5 +212,7 @@
     </view>
   </view>
 </view>
+
+</block>
 
 </view>

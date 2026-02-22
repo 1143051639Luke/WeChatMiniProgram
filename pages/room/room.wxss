@@ -6,6 +6,50 @@
   padding: 24rpx;
 }
 
+.auth-gate{
+  min-height: calc(100vh - 48rpx);
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30rpx;
+}
+
+.auth-card{
+  width: 100%;
+  max-width: 640rpx;
+  border-radius: 24rpx;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 34rpx 24rpx;
+  display:flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.auth-title{
+  font-size: 40rpx;
+  font-weight: 900;
+}
+
+.auth-desc{
+  font-size: 24rpx;
+  opacity: .78;
+}
+
+.auth-btn{
+  margin: 12rpx 0 0 0;
+  height: 78rpx;
+  line-height: 78rpx;
+  border-radius: 16rpx;
+  background: #07c160;
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 800;
+}
+.auth-btn::after{
+  border: none;
+}
+
 .top-row{
   display:flex;
   flex-direction: row;
@@ -105,13 +149,13 @@
 }
 
 .top-actions{
-  width: 170rpx;
+  width: 176rpx;
   display:flex;
   flex-direction: column;
   gap: 14rpx;
 }
 
-.unit-pill,.refresh-pill{
+.unit-pill,.refresh-pill,.end-pill{
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.10);
   border-radius: 18rpx;
@@ -120,25 +164,54 @@
   font-size: 24rpx;
 }
 
-.profile-bar{
-  margin-top: 16rpx;
-  padding: 14rpx;
-  border-radius: 18rpx;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-  display:flex;
-  justify-content: space-between;
-  align-items: center;
+.end-pill{
+  background: rgba(255,77,79,0.18);
+  border: 1px solid rgba(255,77,79,0.35);
+  color: #ffd1d1;
 }
 
-.profile-text{ font-size: 24rpx; opacity:.8; }
-.profile-btn{
+.invite-bar{
+  margin-top: 16rpx;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 18rpx;
+  padding: 12rpx 14rpx;
+  display:flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.invite-main{
+  flex: 1;
+  min-width: 0;
+  display:flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.invite-label{
+  font-size: 22rpx;
+  opacity: .72;
+}
+
+.invite-code{
+  font-size: 28rpx;
+  font-weight: 900;
+  letter-spacing: 1rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.invite-copy{
   padding: 10rpx 16rpx;
-  border-radius: 16rpx;
+  border-radius: 14rpx;
+  font-size: 24rpx;
+  font-weight: 700;
   background: rgba(7,193,96,0.18);
   border: 1px solid rgba(7,193,96,0.35);
-  color:#a7f3c8;
-  font-size: 24rpx;
+  color:#bff2d6;
 }
 
 .list{

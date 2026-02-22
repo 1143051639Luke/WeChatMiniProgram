@@ -1,7 +1,67 @@
-<!--index.wxml-->
-<navigation-bar title="Weixin" back="{{false}}" color="black" background="#FFF"></navigation-bar>
-<scroll-view class="scrollarea" scroll-y type="list">
-  <view class="container">
-    Weixin
+<!-- pages/index/index.wxml -->
+<view class="start-page">
+  <view class="hero">
+    <text class="hero-title">酒局账本</text>
+    <text class="hero-subtitle">快速开局，实时记账</text>
   </view>
-</scroll-view>
+
+  <view class="profile-card">
+    <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+      <image
+        class="profile-avatar"
+        src="{{myProfile.avatar ? myProfile.avatar : '/assets/default-avatar.png'}}"
+        mode="aspectFill"
+      ></image>
+      <text class="avatar-tip">点此设置头像</text>
+    </button>
+
+    <view class="profile-info">
+      <input
+        class="nickname-input"
+        type="nickname"
+        placeholder="请输入昵称（用于区分谁是谁）"
+        maxlength="20"
+        value="{{myProfile.nickname}}"
+        bindinput="onNicknameInput"
+        bindblur="saveNickname"
+      />
+      <text class="profile-tip">
+        {{hasProfile ? '已授权，可开局/加入' : '首次会请求授权，再手动完善昵称头像'}}
+      </text>
+    </view>
+  </view>
+
+  <view class="actions">
+    <button
+      class="action-btn action-primary"
+      bindtap="startNewGame"
+      loading="{{busy}}"
+      disabled="{{busy}}"
+    >
+      开启新的游戏
+    </button>
+
+    <button
+      class="action-btn action-secondary"
+      bindtap="scanJoinGame"
+      loading="{{busy}}"
+      disabled="{{busy}}"
+    >
+      扫码加入
+    </button>
+  </view>
+
+  <view class="join-by-code">
+    <input
+      class="room-input"
+      placeholder="输入朋友给你的房间码（最简单测试）"
+      value="{{joinRoomInput}}"
+      bindinput="onJoinRoomInput"
+    />
+    <button class="join-btn" bindtap="joinByRoomCode" loading="{{busy}}" disabled="{{busy}}">
+      房间码加入
+    </button>
+  </view>
+
+  <text class="bottom-tip">邀请最简单：新开后复制房间码，发给朋友输入即可</text>
+</view>

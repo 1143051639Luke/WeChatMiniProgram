@@ -15,13 +15,17 @@ function safeNickname(nickname, openid) {
   return '酒友' + String(openid).slice(-4);
 }
 
+function normalizeAvatar(avatar) {
+  return typeof avatar === 'string' ? avatar.trim() : '';
+}
+
 exports.main = async (event = {}) => {
   const wxContext = cloud.getWXContext() || {};
   const openid = wxContext.OPENID || event.openid;
 
   const roomId = String(event.roomId || '').trim();
   const nickname = safeNickname(event.nickname, openid);
-  const avatar = typeof event.avatar === 'string' ? event.avatar : '';
+  const avatar = normalizeAvatar(event.avatar);
   const unit = typeof event.unit === 'string' && event.unit.trim() ? event.unit.trim() : '杯';
 
   if (!roomId) return { ok: false, message: 'roomId required' };
@@ -49,6 +53,26 @@ exports.main = async (event = {}) => {
           users: _.push(userItem)
         }
       });
+    } else {
+      // 已在房间时，同步昵称和头像，避免一直显示旧资料
+      let changed = false;
+      const nextUsers = users.map(u => {
+        if (!u || u.openid !== openid) return u;
+
+        const nextNick = nickname || u.nickname;
+        const nextAvatar = avatar || normalizeAvatar(u.avatar);
+        if (u.nickname !== nextNick || normalizeAvatar(u.avatar) !== nextAvatar) {
+          changed = true;
+          return { ...u, nickname: nextNick, avatar: nextAvatar };
+        }
+        return u;
+      });
+
+      if (changed) {
+        await roomRef.update({
+          data: { users: nextUsers }
+        });
+      }
     }
 
     // 如果房间没 unit，补一下
@@ -79,7 +103,19 @@ exports.main = async (event = {}) => {
       const exists = users.some(u => u && u.openid === openid);
       const updateData = {};
 
-      if (!exists) updateData.users = _.push(userItem);
+      if (!exists) {
+        updateData.users = _.push(userItem);
+      } else {
+        const nextUsers = users.map(u => {
+          if (!u || u.openid !== openid) return u;
+          return {
+            ...u,
+            nickname: nickname || u.nickname,
+            avatar: avatar || normalizeAvatar(u.avatar),
+          };
+        });
+        updateData.users = nextUsers;
+      }
       if (!room.unit) updateData.unit = unit;
       if (Object.keys(updateData).length > 0) {
         await roomRef.update({ data: updateData });
