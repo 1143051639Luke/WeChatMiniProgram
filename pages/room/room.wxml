@@ -1,0 +1,208 @@
+<!-- pages/room/room.wxml -->
+<view class="page">
+
+<!-- 顶部：左侧我的总览 + 右侧操作 -->
+<view class="top-row">
+
+  <!-- 我的总览方块 -->
+  <view class="me-card" bindtap="onMeCardTap">
+    <view class="me-left">
+      <image class="me-avatar" src="{{myProfile.avatar}}" mode="aspectFill"></image>
+      <view class="me-name-wrap">
+        <text class="me-name">{{myProfile.nickname}}</text>
+        <text class="me-tag-placeholder">（标签预留位）</text>
+      </view>
+    </view>
+
+    <view class="me-right">
+      <!-- 只显示：欠（我欠别人的总数） -->
+      <view class="me-one-stat">
+        <text class="stat-label">欠</text>
+        <view class="stat-value-row">
+          <text class="stat-value">{{myOweTotal}}</text>
+          <text class="stat-unit">{{currentUnit}}</text>
+        </view>
+      </view>
+
+      <view class="me-detail-btn" bindtap="openDetailModal" catchtap="noop">
+        <text>明细</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 右侧：单位 + 刷新 -->
+  <view class="top-actions">
+    <view class="unit-pill" bindtap="changeUnit">
+      <text>单位 {{currentUnit}}</text>
+    </view>
+    <view class="refresh-pill" bindtap="manualRefresh">
+      <text>刷新</text>
+    </view>
+  </view>
+
+</view>
+
+<!-- 授权提示（可选） -->
+<view class="profile-bar" wx:if="{{!hasProfile}}">
+  <text class="profile-text">（可选）授权后显示微信头像昵称</text>
+  <view class="profile-btn" bindtap="onGetProfileTap">授权</view>
+</view>
+
+<!-- 玩家列表：横版卡片 -->
+<view class="list">
+  <block wx:for="{{players}}" wx:key="openid">
+    <!-- 不渲染自己（自己在顶部 me-card 里） -->
+    <view wx:if="{{item.openid !== myOpenId}}" class="player-card">
+
+      <view class="p-left" bindtap="onPlayerTap" data-target="{{item}}">
+        <image class="p-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
+        <view class="p-name-wrap">
+          <text class="p-name">{{item.nickname}}</text>
+          <text class="p-tag-placeholder">（标签预留位）</text>
+        </view>
+      </view>
+
+      <view class="p-mid" bindtap="onPlayerTap" data-target="{{item}}">
+        <!-- 欠：他欠的总数 -->
+        <view class="p-line">
+          <text class="p-label">欠</text>
+          <view class="p-num">
+            <text class="p-num-red">{{item.totalDebt}}</text>
+            <text class="p-unit">{{currentUnit}}</text>
+          </view>
+        </view>
+
+        <!-- TA欠我：他欠我的总数 -->
+        <view class="p-line">
+          <text class="p-label">TA欠我</text>
+          <view class="p-num">
+            <text class="p-num-green">{{item.heOwesMe}}</text>
+            <text class="p-unit">{{currentUnit}}</text>
+          </view>
+        </view>
+
+        <!-- 按钮：欠酒 / 还酒（横向排列） -->
+        <view class="p-btns">
+          <view class="btn btn-debt" bindtap="quickDebt" data-target="{{item}}" catchtap="noop">欠酒</view>
+          <view class="btn btn-repay" bindtap="quickRepay" data-target="{{item}}" catchtap="noop">还酒</view>
+        </view>
+      </view>
+
+      <!-- 右侧：欠（他欠的总数） -->
+      <view class="p-right" bindtap="onPlayerTap" data-target="{{item}}">
+        <view class="p-right-box">
+          <text class="p-right-title">欠</text>
+          <view class="p-right-total">
+            <text class="p-total">{{item.totalDebt}}</text>
+            <text class="p-unit">{{currentUnit}}</text>
+          </view>
+        </view>
+      </view>
+
+    </view>
+  </block>
+</view>
+
+<!-- 欠 / 还 输入弹窗 -->
+<view wx:if="{{showInputModal}}" class="mask" bindtap="closeModal">
+  <view class="dialog-card" catchtap="noop">
+    <view class="dialog-title">{{inputMode === 'repay' ? '还酒' : '欠酒'}}</view>
+
+    <view class="modal-content">
+      <text class="modal-line">
+        {{inputMode === 'repay' ? '我还' : '我欠'}} {{selectedTarget.nickname}}
+      </text>
+
+      <view class="modal-row">
+        <input
+          class="debt-input"
+          type="number"
+          value="{{inputAmount}}"
+          bindinput="onInputAmount"
+          placeholder="数量"
+          focus="{{showInputModal}}"
+        />
+        <text class="modal-unit">{{currentUnit}}</text>
+      </view>
+
+      <view class="modal-hint">
+        <text wx:if="{{inputMode==='repay'}}">还酒需要对方同意后才生效</text>
+      </view>
+    </view>
+
+    <view class="dialog-actions">
+      <view class="dialog-btn dialog-btn-cancel" bindtap="closeModal">取消</view>
+      <view class="dialog-btn dialog-btn-confirm" bindtap="confirmInput">确定</view>
+    </view>
+  </view>
+</view>
+
+<!-- 明细弹窗：两栏（我欠 / 欠我） -->
+<view wx:if="{{showDetailModal}}" class="mask" bindtap="closeDetailModal">
+  <view class="dialog-card detail-card" catchtap="noop">
+    <view class="dialog-title">明细</view>
+
+    <view class="detail-wrap">
+      <view class="detail-section">
+        <text class="detail-title strong big">我欠：</text>
+
+        <view wx:if="{{myOweList.length === 0}}" class="detail-empty">
+          <text>暂无</text>
+        </view>
+
+        <block wx:for="{{myOweList}}" wx:key="openid">
+          <view class="detail-row">
+            <text class="detail-name">{{item.name}}</text>
+            <view class="detail-right">
+              <text class="detail-amt detail-amt-red strong">{{item.amount}}</text>
+              <text class="detail-unit strong"> {{currentUnit}}</text>
+            </view>
+          </view>
+        </block>
+      </view>
+
+      <view class="detail-section">
+        <text class="detail-title strong big">欠我：</text>
+
+        <view wx:if="{{oweMeList.length === 0}}" class="detail-empty">
+          <text>暂无</text>
+        </view>
+
+        <block wx:for="{{oweMeList}}" wx:key="openid">
+          <view class="detail-row">
+            <text class="detail-name">{{item.name}}</text>
+            <view class="detail-right">
+              <text class="detail-amt detail-amt-green strong">{{item.amount}}</text>
+              <text class="detail-unit strong"> {{currentUnit}}</text>
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <view class="dialog-actions">
+      <view class="dialog-btn dialog-btn-confirm" bindtap="closeDetailModal">关闭</view>
+    </view>
+  </view>
+</view>
+
+<!-- 还酒申请弹窗（债主端）自定义遮罩：不会系统 modal 反复弹 -->
+<view wx:if="{{showApproveModal}}" class="mask">
+  <view class="approve-card" catchtap="noop">
+    <view class="approve-title">还酒申请</view>
+
+    <view class="approve-text">
+      <text class="approve-name">{{pendingRepayTx.debtorNickname}}</text>
+      <text> 申请还 </text>
+      <text class="approve-amt">{{pendingRepayTx.amount}}</text>
+      <text class="approve-unit"> {{pendingRepayTx.unit}}</text>
+    </view>
+
+    <view class="approve-actions">
+      <view class="btn-reject" bindtap="rejectRepay">拒绝</view>
+      <view class="btn-approve" bindtap="approveRepay">同意</view>
+    </view>
+  </view>
+</view>
+
+</view>

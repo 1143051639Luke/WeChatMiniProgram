@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/room/room",
+    "pages/index/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "酒局账本",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "black",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
